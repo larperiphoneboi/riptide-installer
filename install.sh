@@ -19,8 +19,8 @@ RIPTIDE_VERSION="1.0.31"
 # dylib), zipped. It is hosted on an anonymous file host so the download link
 # stays private to this group — it is not malware. The zip is checksummed by
 # PAYLOAD_MD5 below, and that check runs before anything is installed.
-PAYLOAD_URL="https://files.catbox.moe/8p1sfx.zip"
-PAYLOAD_MD5="8e0dec1bd46dce2ad509bf36200091de"
+PAYLOAD_URL="https://files.catbox.moe/483x1y.zip"
+PAYLOAD_MD5="a693575c28074ee69ec66c1896eb1619"
 RBX_VERSION="version-5b15515e80624095"
 RBX_PLAYER="0.738.0.7381393"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
