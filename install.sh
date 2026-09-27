@@ -14,7 +14,7 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.30"
+RIPTIDE_VERSION="1.0.31"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is hosted on an anonymous file host so the download link
 # stays private to this group — it is not malware. The zip is checksummed by
@@ -174,6 +174,23 @@ main() {
   section "Setting up the workspace"
   mkdir -p "$HOME/Documents/Riptide/workspace" "$HOME/Documents/Riptide/autoexec"
   echo -e "${GUT}${OKC}✓${NC} ~/Documents/Riptide/workspace + autoexec ready"
+
+  section "Riptide AI (MCP assistant)"
+  if command -v node >/dev/null 2>&1; then
+    NODE_BIN="$(command -v node)"
+    echo -e "${GUT}${OKC}✓${NC} Node runtime found ($NODE_BIN)"
+    if [ -d "$APP_DIR/Riptide.app/Contents/Resources/ai" ]; then
+      echo -e "${GUT}${OKC}✓${NC} AI bundle shipped inside the app — MCP server ready"
+      echo -e "${GUT}${DIM}·${NC} The first macOS executor with an AI MCP. Connect it from the app:"
+      echo -e "${GUT}${DIM}·${NC}   Settings → AI & MCP (Claude Desktop, Cursor, or any MCP client)."
+    else
+      echo -e "${WARN} Riptide.app has no Contents/Resources/ai — rebuild the payload so the"
+      echo -e "${WARN} AI side is included (tools/build-ui.sh copies it when it is built)."
+    fi
+  else
+    echo -e "${WARN} Node.js not found — the AI assistant and MCP server need it."
+    echo -e "${WARN} Install it with:  brew install node"
+  fi
 
   surf_report
   echo -e "${GUT}${DIM}update${NC}    ${DIM}curl -fsSL $INSTALLER_URL | bash${NC}"
