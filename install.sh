@@ -14,7 +14,7 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.35"
+RIPTIDE_VERSION="1.0.36"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is attached to a release in this same public installer
 # repo, so the download needs no account and no token — unlike the executor's
