@@ -21,8 +21,8 @@ RIPTIDE_VERSION="1.0.36"
 # own repository, which is private and therefore cannot serve the payload.
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
-PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.33/Riptide-1.0.33.zip"
-PAYLOAD_MD5="3b816620f288e50a7b33d2ca276f0b22"
+PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.36/Riptide-1.0.36.zip"
+PAYLOAD_MD5="4cf567c7bb71ab344d036e67a15661a1"
 RBX_VERSION="version-b09c93298b5d4cd1"
 RBX_PLAYER="0.741.0.7411056"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
