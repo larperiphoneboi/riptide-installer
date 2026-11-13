@@ -14,20 +14,20 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.36"
+RIPTIDE_VERSION="1.0.41"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is attached to a release in this same public installer
 # repo, so the download needs no account and no token — unlike the executor's
 # own repository, which is private and therefore cannot serve the payload.
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
-PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.36/Riptide-1.0.36.zip"
-PAYLOAD_MD5="4cf567c7bb71ab344d036e67a15661a1"
-RBX_VERSION="version-b09c93298b5d4cd1"
-RBX_PLAYER="0.741.0.7411056"
+PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.41/Riptide-1.0.41.zip"
+PAYLOAD_MD5="1b54571cbfff9db52cb00a7fcde9395d"
+RBX_VERSION="version-8001f8762ae44efe"
+RBX_PLAYER="0.747.0.7471481"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
-RBX_MD5="34631c0c8c1ca3440575259e82849822"
-INSTALLER_URL="https://raw.githubusercontent.com/larperiphoneboi/riptide-installer/main/install.sh"
+RBX_MD5="e16b504d3fd88679b565e4ce9cf59c0b"
+INSTALLER_URL="https://riptide-lander.web.app/install.sh"
 
 if [ -w "/Applications" ]; then
   APP_DIR="/Applications"
@@ -162,14 +162,21 @@ main() {
     xattr -dr com.apple.quarantine '$APP_DIR/Riptide.app'
   "
 
-  section "Patching RobloxPlayer"
-  run_step "Injecting libRiptide.dylib" bash -c "
+  # No load command is written into RobloxPlayer. The client's Mach-O header
+  # stays stock; Roblox.app's CFBundleExecutable is the launcher, and the
+  # launcher execs the real binary with DYLD_INSERT_LIBRARIES set. The dylib's
+  # constructor unsets the variable and rewrites its dyld image name (see
+  # src/stealth.hpp), so a self-integrity check has nothing to read.
+  section "Preparing RobloxPlayer"
+  run_step "Installing the launcher" bash -c "
     rm -rf '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayerInstaller.app' &&
     rm -rf '$APP_DIR/Roblox.app/Contents/MacOS/RobloxMenuBar.app' &&
-    '$APP_DIR/Riptide.app/Contents/Resources/riptide-machopatch' \
-        --binary '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayer' \
-        --dylib '$APP_DIR/Riptide.app/Contents/Resources/libRiptide.dylib' &&
-    rm -f '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayer.unix-backup' &&
+    cp '$APP_DIR/Riptide.app/Contents/Resources/riptide-loader' \
+       '$APP_DIR/Roblox.app/Contents/MacOS/RiptideLoader' &&
+    chmod 755 '$APP_DIR/Roblox.app/Contents/MacOS/RiptideLoader' &&
+    plutil -replace CFBundleExecutable -string RiptideLoader \
+       '$APP_DIR/Roblox.app/Contents/Info.plist' &&
+    codesign --force -s - '$APP_DIR/Roblox.app/Contents/MacOS/RiptideLoader' &&
     codesign --force -s - '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayer'
   "
 
