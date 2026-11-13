@@ -167,6 +167,12 @@ main() {
   # launcher execs the real binary with DYLD_INSERT_LIBRARIES set. The dylib's
   # constructor unsets the variable and rewrites its dyld image name (see
   # src/stealth.hpp), so a self-integrity check has nothing to read.
+  # The launcher is the bundle's CFBundleExecutable now, so signing it as a
+  # bare file fails: codesign resolves it as the app's main executable and
+  # validates the whole bundle, which still carries Roblox's signature and a
+  # nested RobloxPlayer. Sign the bundle itself, after the new executable and
+  # Info.plist are in place. --deep is what reaches the nested player and
+  # dylibs; per-file signing in that order is what broke 1.0.41's first upload.
   section "Preparing RobloxPlayer"
   run_step "Installing the launcher" bash -c "
     rm -rf '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayerInstaller.app' &&
@@ -176,8 +182,7 @@ main() {
     chmod 755 '$APP_DIR/Roblox.app/Contents/MacOS/RiptideLoader' &&
     plutil -replace CFBundleExecutable -string RiptideLoader \
        '$APP_DIR/Roblox.app/Contents/Info.plist' &&
-    codesign --force -s - '$APP_DIR/Roblox.app/Contents/MacOS/RiptideLoader' &&
-    codesign --force -s - '$APP_DIR/Roblox.app/Contents/MacOS/RobloxPlayer'
+    codesign --force --deep -s - '$APP_DIR/Roblox.app'
   "
 
   section "Setting up the workspace"
