@@ -14,15 +14,15 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.41"
+RIPTIDE_VERSION="1.0.42"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is attached to a release in this same public installer
 # repo, so the download needs no account and no token — unlike the executor's
 # own repository, which is private and therefore cannot serve the payload.
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
-PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.41/Riptide-1.0.41.zip"
-PAYLOAD_MD5="1b54571cbfff9db52cb00a7fcde9395d"
+PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.42/Riptide-1.0.42.zip"
+PAYLOAD_MD5="6f5906f66bfe8cd8353ca9927c431a19"
 RBX_VERSION="version-8001f8762ae44efe"
 RBX_PLAYER="0.747.0.7471481"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
