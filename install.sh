@@ -14,15 +14,15 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.44"
+RIPTIDE_VERSION="1.0.45"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is attached to a release in this same public installer
 # repo, so the download needs no account and no token — unlike the executor's
 # own repository, which is private and therefore cannot serve the payload.
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
-PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.44/Riptide-1.0.44.zip"
-PAYLOAD_MD5="c36feefdc01c21f33e508ccedf1126e1"
+PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.45/Riptide-1.0.45.zip"
+PAYLOAD_MD5="36e29b82cf3b6a88accab66ba40371ea"
 RBX_VERSION="version-8001f8762ae44efe"
 RBX_PLAYER="0.747.0.7471481"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
@@ -68,6 +68,50 @@ verify_md5() {
 }
 export -f verify_md5
 
+LICENCE_DIR="$HOME/Library/Application Support/Riptide"
+LICENCE_FILE="$LICENCE_DIR/license"
+LICENCE_API="${RIPTIDE_LICENSE_API:-https://riptide-account.theeuntra.workers.dev}"
+
+# The machine id the app will present: IOPlatformUUID salted and hashed, the
+# same recipe as license.rs. A key is bound to this, not to the install.
+machine_hwid() {
+  local uuid
+  uuid="$(ioreg -rd1 -c IOPlatformExpertDevice | awk -F'"' '/IOPlatformUUID/{print $4}')"
+  [ -n "$uuid" ] || uuid="unknown-machine"
+  printf 'riptide-hwid-v1:%s' "$uuid" | shasum -a 256 | awk '{print $1}'
+}
+
+# RPD xxxx xxxx xxxx xxxx, in any case, with or without dashes. I/L/O/U are not
+# in the alphabet and are mapped to the characters they look like.
+normalise_key() {
+  local raw compact fixed
+  raw="$(printf '%s' "$1" | tr '[:lower:]' '[:upper:]' | tr -cd '0-9A-Z')"
+  case "$raw" in RPD*) ;; *) echo ""; return ;; esac
+  compact="${raw#RPD}"
+  [ "${#compact}" -eq 16 ] || { echo ""; return; }
+  fixed="$(printf '%s' "$compact" | sed -e 's/I/1/g' -e 's/L/1/g' -e 's/O/0/g' -e 's/U/V/g')"
+  printf 'RPD-%s-%s-%s-%s' \
+    "${fixed:0:4}" "${fixed:4:4}" "${fixed:8:4}" "${fixed:12:4}"
+}
+
+licence_status() {
+  local key="$1" hwid="$2" body status
+  body="$(curl -fsS --max-time 20 -X POST "$LICENCE_API/validate" \
+    -H 'content-type: application/json' \
+    -d "{\"key\":\"$key\",\"hwid\":\"$hwid\",\"version\":\"$RIPTIDE_VERSION\"}" 2>/dev/null)" || {
+    echo "offline"; return
+  }
+  status="$(printf '%s' "$body" | sed -n 's/.*"status":"\([a-z_]*\)".*/\1/p')"
+  echo "${status:-unknown}"
+}
+
+save_licence() {
+  umask 077
+  mkdir -p "$LICENCE_DIR"
+  printf '%s' "$1" > "$LICENCE_FILE"
+  umask 022
+}
+
 banner() {
   clear
   echo
@@ -112,6 +156,15 @@ case "${1:-}" in
     exit 0
     ;;
 esac
+
+KEY=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --key) KEY="${2:-}"; shift 2 ;;
+    --key=*) KEY="${1#--key=}"; shift ;;
+    *) shift ;;
+  esac
+done
 
 main() {
   banner
@@ -184,6 +237,53 @@ main() {
        '$APP_DIR/Roblox.app/Contents/Info.plist' &&
     codesign --force --deep -s - '$APP_DIR/Roblox.app'
   "
+
+
+  section "Licence"
+  HWID="$(machine_hwid)"
+  if [ -z "$KEY" ]; then
+    if [ -r /dev/tty ]; then
+      printf "%s%s%s " "${GUT}${DIM}" "Paste your licence key (getriptidetoday.web.app/license):" "${NC}"
+      read -r KEY < /dev/tty || true
+    fi
+  fi
+  if [ -n "$KEY" ]; then
+    KEY="$(normalise_key "$KEY")"
+    if [ -z "$KEY" ]; then
+      echo -e "${GUT}${BADC}✕${NC} that is not a Riptide key (RPD-XXXX-XXXX-XXXX-XXXX)"
+      echo -e "${GUT}${DIM}·${NC} the app will ask again on first launch"
+    else
+      STATUS="$(licence_status "$KEY" "$HWID")"
+      case "$STATUS" in
+        active)
+          save_licence "$KEY"
+          echo -e "${GUT}${OKC}✓${NC} licence accepted — this machine is now bound to it"
+          ;;
+        suspended)
+          save_licence "$KEY"
+          echo -e "${GUT}${WARNC}!${NC} licence suspended — Riptide runs without Script Hub, AI or MCP"
+          ;;
+        banned)
+          echo -e "${GUT}${BADC}✕${NC} this licence is banned — Riptide will not install"
+          exit 1
+          ;;
+        device_limit)
+          echo -e "${GUT}${BADC}✕${NC} this key is already on 2 machines — reset devices at"
+          echo -e "${GUT}${DIM}·${NC} getriptidetoday.web.app/license, then run this again"
+          exit 1
+          ;;
+        offline)
+          save_licence "$KEY"
+          echo -e "${GUT}${WARNC}!${NC} could not reach the licence server — saved, checked on first launch"
+          ;;
+        *)
+          echo -e "${GUT}${BADC}✕${NC} that key was not recognised — the app will ask again"
+          ;;
+      esac
+    fi
+  else
+    echo -e "${GUT}${WARN}!${NC} no key given — Riptide will ask on first launch${NC}"
+  fi
 
   section "Setting up the workspace"
   mkdir -p "$HOME/Documents/Riptide/workspace" "$HOME/Documents/Riptide/autoexec"
