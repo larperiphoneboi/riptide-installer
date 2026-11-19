@@ -14,14 +14,14 @@ CHECK="${OKC}✓${NC}"; CROSS="${BADC}✕${NC}"; INFO="${DIM}›${NC}"; WARN="${
 GUT='  '                   # every line shares this left gutter
 RULE_W=52                  # hairline width
 
-RIPTIDE_VERSION="1.0.45"
+RIPTIDE_VERSION="1.0.46"
 # What this is: the Riptide app bundle (the editor GUI plus the executor
 # dylib), zipped. It is attached to a release in this same public installer
 # repo, so the download needs no account and no token — unlike the executor's
 # own repository, which is private and therefore cannot serve the payload.
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
-PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.45/Riptide-1.0.45.zip"
+PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.46/Riptide-1.0.46.zip"
 PAYLOAD_MD5="36e29b82cf3b6a88accab66ba40371ea"
 RBX_VERSION="version-445548190fe44ee2"
 RBX_PLAYER="0.748.0.7481526"
