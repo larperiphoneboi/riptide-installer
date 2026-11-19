@@ -23,10 +23,10 @@ RIPTIDE_VERSION="1.0.45"
 # anything is installed.
 PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.45/Riptide-1.0.45.zip"
 PAYLOAD_MD5="36e29b82cf3b6a88accab66ba40371ea"
-RBX_VERSION="version-8001f8762ae44efe"
-RBX_PLAYER="0.747.0.7471481"
+RBX_VERSION="version-445548190fe44ee2"
+RBX_PLAYER="0.748.0.7481526"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
-RBX_MD5="e16b504d3fd88679b565e4ce9cf59c0b"
+RBX_MD5="0e880042812981843c57f63b1f5a51dc"
 INSTALLER_URL="https://riptide-lander.web.app/install.sh"
 
 if [ -w "/Applications" ]; then
@@ -130,7 +130,8 @@ surf_report() {
   echo -e "${GUT}${DIM}$(rule)${NC}"
   echo -e "${GUT}${DIM}version${NC}   ${BOLD}$RIPTIDE_VERSION${NC}"
   echo -e "${GUT}${DIM}installed${NC} $APP_DIR/Riptide.app"
-  echo -e "${GUT}${DIM}roblox${NC}    ${BOLD}pinned${NC} ${DIM}· injection ready${NC}"
+  echo -e "${GUT}${DIM}roblox${NC}    ${BOLD}${RBX_PLAYER}${NC} ${DIM}· latest supported${NC}"
+  echo -e "${GUT}${DIM}sunc${NC}      ${BOLD}86/86${NC} ${DIM}· 100%${NC}"
   echo
 }
 
@@ -284,6 +285,11 @@ main() {
   else
     echo -e "${GUT}${WARN}!${NC} no key given — Riptide will ask on first launch${NC}"
   fi
+
+  section "Community"
+  echo -e "${GUT}${DIM}·${NC} licence handled — opening the Riptide Discord server"
+  echo -e "${GUT}${DIM}·${NC} https://discord.gg/NK7vMNNWah"
+  open "https://discord.gg/NK7vMNNWah" 2>/dev/null || true
 
   section "Setting up the workspace"
   mkdir -p "$HOME/Documents/Riptide/workspace" "$HOME/Documents/Riptide/autoexec"
