@@ -22,7 +22,7 @@ RIPTIDE_VERSION="1.0.46"
 # The zip is checksummed by PAYLOAD_MD5 below, and that check runs before
 # anything is installed.
 PAYLOAD_URL="https://github.com/larperiphoneboi/riptide-installer/releases/download/v1.0.46/Riptide-1.0.46.zip"
-PAYLOAD_MD5="36e29b82cf3b6a88accab66ba40371ea"
+PAYLOAD_MD5="5a5c41517fd65860b54d05d1e6467776"
 RBX_VERSION="version-445548190fe44ee2"
 RBX_PLAYER="0.748.0.7481526"
 RBX_URL="https://setup.rbxcdn.com/mac/${RBX_VERSION}-RobloxPlayer.zip"
